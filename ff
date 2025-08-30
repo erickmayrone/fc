@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de Pagamentos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        header {
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .menu {
+            display: flex;
+            background: #34495e;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .menu-item {
+            padding: 15px 20px;
+            color: white;
+            text-decoration: none;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .menu-item.active {
+            border-bottom-color: #3498db;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .menu-item i {
+            font-size: 1.2rem;
+        }
+        
+        .content {
+            padding: 20px;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .client-card {
+            background: white;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .client-card.paid {
+            border-left-color: #2ecc71;
+        }
+        
+        .client-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .client-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .client-amount {
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+        
+        .client-due {
+            color: #7f8c8d;
+        }
+        
+        .client-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #2ecc71;
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #7f8c8d;
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+        
+        @media (max-width: 768px) {
+            .menu {
+                flex-direction: column;
+            }
+            
+            .menu-item {
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                border-left: 3px solid transparent;
+            }
+            
+            .menu-item.active {
+                border-left-color: #3498db;
+                border-bottom-color: rgba(255, 255, 255, 0.1);
+            }
+            
+            .client-details {
+                flex-direction: column;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            header {
+                padding: 15px;
+            }
+            
+            h1 {
+                font-size: 1.5rem;
+            }
+            
+            .content {
+                padding: 15px;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Controle de Pagamentos</h1>
+            <p class="subtitle">Sistema simples para gerenciar seus recebíveis</p>
+        </header>
+        
+        <nav class="menu">
+            <a href="#" class="menu-item active" data-tab="dashboard">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="#" class="menu-item" data-tab="pending">
+                <i class="fas fa-clock"></i> Pendentes
+            </a>
+            <a href="#" class="menu-item" data-tab="paid">
+                <i class="fas fa-check-circle"></i> Pagos
+            </a>
+            <a href="#" class="menu-item" data-tab="add">
+                <i class="fas fa-plus"></i> Novo
+            </a>
+        </nav>
+        
+        <main class="content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <h2>Visão Geral</h2>
+                
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-label">Total de Clientes</div>
+                        <div class="stat-value" id="total-clients">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Pendentes</div>
+                        <div class="stat-value" id="pending-count">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Pagos</div>
+                        <div class="stat-value" id="paid-count">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Valor Total</div>
+                        <div class="stat-value" id="total-amount">R$ 0</div>
+                    </div>
+                </div>
+                
+                <h3>Últimos Adicionados</h3>
+                <div id="recent-list">
+                    <!-- Cards will be generated here -->
+                </div>
+            </div>
+            
+            <!-- Pending Tab -->
+            <div id="pending" class="tab-content">
+                <h2>Pagamentos Pendentes</h2>
+                <div id="pending-list">
+                    <!-- Cards will be generated here -->
+                </div>
+            </div>
+            
+            <!-- Paid Tab -->
+            <div id="paid" class="tab-content">
+                <h2>Pagamentos Realizados</h2>
+                <div id="paid-list">
+                    <!-- Cards will be generated here -->
+                </div>
+            </div>
+            
+            <!-- Add Client Tab -->
+            <div id="add" class="tab-content">
+                <h2>Adicionar Novo Pagamento</h2>
+                
+                <div class="form-group">
+                    <label for="client-name">Nome do Cliente</label>
+                    <input type="text" id="client-name" class="form-control" placeholder="Ex: João Silva">
+                </div>
+                
+                <div class="form-group">
+                    <label for="client-amount">Valor (R$)</label>
+                    <input type="number" id="client-amount" class="form-control" placeholder="0,00" step="0.01" min="0">
+                </div>
+                
+                <div class="form-group">
+                    <label for="client-due">Data de Vencimento</label>
+                    <input type="date" id="client-due" class="form-control">
+                </div>
+                
+                <div class="form-group">
+                    <label for="client-notes">Observações</label>
+                    <textarea id="client-notes" class="form-control" rows="3" placeholder="Detalhes sobre o pagamento..."></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button id="save-client" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar
+                    </button>
+                    <button id="cancel-client" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Data storage
+        let clients = JSON.parse(localStorage.getItem('payment-clients')) || [];
+        
+        // Set default date for new clients
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        document.getElementById('client-due').value = formattedDate;
+
+        // Elements
+        const menuItems = document.querySelectorAll('.menu-item');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        // Stats elements
+        const totalClients = document.getElementById('total-clients');
+        const pendingCount = document.getElementById('pending-count');
+        const paidCount = document.getElementById('paid-count');
+        const totalAmount = document.getElementById('total-amount');
+        
+        // Form elements
+        const clientName = document.getElementById('client-name');
+        const clientAmount = document.getElementById('client-amount');
+        const clientDue = document.getElementById('client-due');
+        const clientNotes = document.getElementById('client-notes');
+        const saveClient = document.getElementById('save-client');
+        const cancelClient = document.getElementById('cancel-client');
+        
+        // Lists elements
+        const recentList = document.getElementById('recent-list');
+        const pendingList = document.getElementById('pending-list');
+        const paidList = document.getElementById('paid-list');
+
+        // Tab switching
+        menuItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                menuItems.forEach(i => i.classList.remove('active'));
+                tabContents.forEach(content => content.classList.remove('active'));
+                
+                item.classList.add('active');
+                document.getElementById(item.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Save client
+        saveClient.addEventListener('click', () => {
+            const name = clientName.value.trim();
+            const amount = parseFloat(clientAmount.value);
+            const dueDate = clientDue.value;
+            const notes = clientNotes.value.trim();
+
+            if (!name || !amount || !dueDate || amount <= 0) {
+                alert('Preencha nome, valor válido e data de vencimento!');
+                return;
+            }
+
+            const newClient = {
+                id: Date.now(),
+                name,
+                amount,
+                dueDate,
+                notes,
+                status: 'pending',
+                addedDate: new Date().toISOString()
+            };
+
+            clients.push(newClient);
+            saveToStorage();
+            renderClients();
+            clearForm();
+            alert(`${name} adicionado com sucesso!`);
+            
+            // Switch to dashboard after adding
+            menuItems.forEach(i => i.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+            document.querySelector('[data-tab="dashboard"]').classList.add('active');
+            document.getElementById('dashboard').classList.add('active');
+        });
+
+        // Cancel add
+        cancelClient.addEventListener('click', () => {
+            clearForm();
+        });
+
+        // Clear form
+        function clearForm() {
+            clientName.value = '';
+            clientAmount.value = '';
+            clientDue.value = formattedDate;
+            clientNotes.value = '';
+        }
+
+        // Save to localStorage
+        function saveToStorage() {
+            localStorage.setItem('payment-clients', JSON.stringify(clients));
+        }
+
+        // Create client card
+        function createClientCard(client) {
+            const isPaid = client.status === 'paid';
+            const statusClass = isPaid ? 'paid' : '';
+            const statusText = isPaid ? 'PAGO' : 'PENDENTE';
+            const buttonText = isPaid ? 'Marcar como Pendente' : 'Marcar como Pago';
+            const buttonIcon = isPaid ? 'fa-undo' : 'fa-check';
+            const buttonClass = isPaid ? 'btn-secondary' : 'btn-success';
+
+            return `
+                <div class="client-card ${statusClass}">
+                    <div class="client-name">${client.name}</div>
+                    <div class="client-details">
+                        <div class="client-amount">R$ ${client.amount.toFixed(2)}</div>
+                        <div class="client-due">
+                            <i class="far fa-calendar-alt"></i> 
+                            ${new Date(client.dueDate).toLocaleDateString('pt-BR')}
+                        </div>
+                    </div>
+                    <div>${client.notes || 'Sem observações'}</div>
+                    <div class="client-actions">
+                        <button onclick="togglePayment(${client.id})" class="btn ${buttonClass}">
+                            <i class="fas ${buttonIcon}"></i> ${buttonText}
+                        </button>
+                        <button onclick="deleteClient(${client.id})" class="btn btn-secondary">
+                            <i class="fas fa-trash"></i> Excluir
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Toggle payment status
+        function togglePayment(id) {
+            const client = clients.find(c => c.id === id);
+            if (client) {
+                client.status = client.status === 'paid' ? 'pending' : 'paid';
+                if (client.status === 'paid') {
+                    client.paidDate = new Date().toISOString();
+                }
+                saveToStorage();
+                renderClients();
+                alert(`Pagamento marcado como ${client.status === 'paid' ? 'PAGO' : 'PENDENTE'}`);
+            }
+        }
+
+        // Delete client
+        function deleteClient(id) {
+            if (confirm('Tem certeza que deseja excluir este cliente?')) {
+                clients = clients.filter(c => c.id !== id);
+                saveToStorage();
+                renderClients();
+            }
+        }
+
+        // Update stats
+        function updateStats() {
+            const total = clients.length;
+            const pending = clients.filter(c => c.status === 'pending').length;
+            const paid = clients.filter(c => c.status === 'paid').length;
+            const total_amt = clients.reduce((sum, c) => sum + c.amount, 0);
+
+            totalClients.textContent = total;
+            pendingCount.textContent = pending;
+            paidCount.textContent = paid;
+            totalAmount.textContent = `R$ ${total_amt.toFixed(2)}`;
+        }
+
+        // Render clients
+        function renderClients() {
+            // Update recent clients (last 5 added)
+            const recentClients = [...clients].reverse().slice(0, 5);
+            
+            if (recentClients.length === 0) {
+                recentList.innerHTML = '<div class="empty-state"><i class="fas fa-folder-open"></i><h3>Nenhum cliente</h3><p>Adicione seu primeiro cliente para começar</p></div>';
+            } else {
+                recentList.innerHTML = recentClients.map(createClientCard).join('');
+            }
+            
+            // Update pending clients
+            const pendingClients = clients.filter(c => c.status === 'pending');
+            
+            if (pendingClients.length === 0) {
+                pendingList.innerHTML = '<div class="empty-state"><i class="fas fa-check-circle"></i><h3>Nenhum pagamento pendente</h3><p>Todos os pagamentos estão em dia</p></div>';
+            } else {
+                pendingList.innerHTML = pendingClients.map(createClientCard).join('');
+            }
+            
+            // Update paid clients
+            const paidClients = clients.filter(c => c.status === 'paid');
+            
+            if (paidClients.length === 0) {
+                paidList.innerHTML = '<div class="empty-state"><i class="fas fa-clock"></i><h3>Nenhum pagamento realizado</h3><p>Quando marcar pagamentos como realizados, eles aparecerão aqui</p></div>';
+            } else {
+                paidList.innerHTML = paidClients.map(createClientCard).join('');
+            }
+            
+            updateStats();
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderClients();
+        });
+    </script>
+</body>
+</html>
